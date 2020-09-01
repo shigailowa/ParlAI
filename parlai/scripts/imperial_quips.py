@@ -5,7 +5,7 @@ from parlai.core.script import ParlaiScript, register_script
 from parlai.utils.world_logging import WorldLogger
 from parlai.agents.local_human.local_human import LocalHumanAgent
 import parlai.utils.logging as logging
-
+import personalise_message
 
 from parlai.core.build_data import modelzoo_path
 from parlai.core.params import get_model_name
@@ -36,10 +36,10 @@ class ImperialQuipWorld():
 
         print("ImperialQuips suggestions:")
         for i in range(len(self.models)):
-            print(self.models_labels[i] + ": " +  suggestions[i])
+            print(str(i+1)+"." + self.models_labels[i] + ": " +  suggestions[i])
             
 
-
+        return(suggestions)
 
 
 
@@ -404,7 +404,7 @@ def interactive(opt):
         opt = opt.parse_args()
 
     # Create model and assign it to the specified task
-
+ 
     human_agent = LocalHumanAgent(opt_convai)
         
     convai_agent = create_agent(opt_convai, requireModelExists=True)
@@ -418,7 +418,14 @@ def interactive(opt):
 
     keep_suggesting = True
     while(keep_suggesting):
-        imperial_quips.parley()
+        suggestions = imperial_quips.parley()
+        selection = input("Choose suggestion: ")
+        modification = input("Do you wish to modify the selected response? (y/n): ")
+        if modification == 'y':
+            personalise_message.personalise_message(suggestions[int(selection)-1])
+        else:
+            print("Response: "+suggestions[int(selection)-1])
+
         user_input = input("")
         if user_input == "EXIT":
             keep_suggesting = False
